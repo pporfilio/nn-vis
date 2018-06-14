@@ -44,7 +44,7 @@
             });
 
             selectNodeEl.addEventListener("change", function() {
-                onSelectNodeChanged(data, this);
+                onSelectNodeChanged(data, selectLayerEl, this);
             });
 
             for(var i = 0; i < data.layers.length; ++i) {
@@ -54,7 +54,7 @@
                 selectLayerEl.appendChild(optionEl);
             }
 
-            // Doesn't seem to get a changed callback after going from 0 to more than 0 options.
+            // Don't seem to get a changed callback after repopulating the layer dropdown.
             onSelectLayerChanged(data, selectLayerEl, selectNodeEl);
         }
 
@@ -70,10 +70,24 @@
                 optionEl.value = i;
                 selectNodeEl.appendChild(optionEl);
             }
+
+            // Don't seem to get changed callback after repopulating the node dropdown.
+            onSelectNodeChanged(data, selectLayerEl, selectNodeEl);
         }
 
-        function onSelectNodeChanged(data, selectNodeEl) {
-                console.log("got selected node: " + selectNodeEl.selectedIndex);
+        function onSelectNodeChanged(data, selectLayerEl, selectNodeEl) {
+            console.log("got selected node: " + selectNodeEl.selectedIndex);
+            var biasTextAreaEl = document.getElementById("biasTextArea");
+            var inputWeightTextAreaEl = document.getElementById("inputWeightTextArea");
+            if (selectLayerEl.selectedIndex <= 0) {
+                biasTextAreaEl.value = "--";
+                inputWeightTextAreaEl.value = "--";
+            } else {
+                biasTextAreaEl.value = data.biases[selectLayerEl.selectedIndex][selectNodeEl.selectedIndex];
+                console.log(data.weights[selectLayerEl.selectedIndex]);
+                console.log(data.weights[selectLayerEl.selectedIndex][selectNodeEl.selectedIndex]);
+                inputWeightTextAreaEl.value = data.weights[selectLayerEl.selectedIndex][selectNodeEl.selectedIndex].join("\n");
+            }
         }
 
     </script>
@@ -83,5 +97,13 @@
     Select a Layer: <select id="selectLayer"></select>
     <br />
     Select a Node: <select id="selectNode"></select>
+    <br />
+    Bias
+    <br />
+    <textarea id="biasTextArea" rows="1" cols = "20" readonly="true"></textarea>
+    <br />
+    Input Weights
+    <br />
+    <textarea id="inputWeightTextArea" rows="20" cols="20" readonly="true"></textarea>
 </body>
 </html>
