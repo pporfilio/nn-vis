@@ -4,6 +4,7 @@
     <title>NN Vis</title>
 
     <script src="https://d3js.org/d3.v5.min.js"></script> 
+    <script type="text/javascript" src="javascript/neuralNetwork.js"></script>
 
     <script>
         function start() {
@@ -40,50 +41,41 @@
         function populate(data) {
             var selectLayerEl = document.getElementById("selectLayer"); 
             var selectNodeEl = document.getElementById("selectNode");
+            var nn = new NeuralNetwork(data);
 
             selectLayerEl.addEventListener("change", function() {
-                onSelectLayerChanged(data, this, selectNodeEl);
+                onSelectLayerChanged(nn, this, selectNodeEl);
             });
 
             selectNodeEl.addEventListener("change", function() {
-                onSelectNodeChanged(data, selectLayerEl, this);
+                onSelectNodeChanged(nn, selectLayerEl, this);
             });
 
-            for(var i = 0; i < data.layers.length; ++i) {
+            for(var i = 0; i < nn.getLayerCount(); ++i) {
                 var optionEl = document.createElement("option");
-                optionEl.textContent = "layer " + i + " (" + data.layers[i] + " nodes)";
-                optionEl.value = data.layers[i];
+                optionEl.textContent = "layer " + i + " (" + nn.getNodeCountInLayer(i) + " nodes)";
+                optionEl.value = nn.getNodeCountInLayer(i);
                 selectLayerEl.appendChild(optionEl);
             }
 
             // Don't seem to get a changed callback after repopulating the layer dropdown.
-            onSelectLayerChanged(data, selectLayerEl, selectNodeEl);
+            onSelectLayerChanged(nn, selectLayerEl, selectNodeEl);
 
-            initialize_d3(data);
+            initialize_d3(nn);
         }
 
-        function initialize_d3(data) {
+        function initialize_d3(neuralNetwork) {
             var d3svgEl = d3.select("#d3svg")
-            var nodes = [];
-            for (var layerIndex = 0; layerIndex < data.layers.length; ++layerIndex) {
-                for (var nodeIndex = 0; nodeIndex < data.layers[layerIndex]; ++nodeIndex) {
-                    nodes.push({
-                        layerIndex: layerIndex,
-                        nodeIndex: nodeIndex,
-                        data: data
-                    })
-                }
-            }
 
             var globalGroup = d3svgEl.append("g");
 
             globalGroup.selectAll("circle .nodes")
-            .data(nodes, function(node) { return node.layerIndex + "," + node.nodeIndex; })
+            .data(neuralNetwork.getNodes(), function(node) { return node.layerIndex + "," + node.nodeIndex; })
             .enter()
             .append("svg:circle")
             .attr("class", "nodes")
-            .attr("cx", function(node) { return 10 + node.layerIndex * 50; })
-            .attr("cy", function(node) { return 10 + node.nodeIndex * 25; })
+            .attr("cx", function(node) { return 50 + node.layerIndex * 50; })
+            .attr("cy", function(node) { return 50 + node.nodeIndex * 25; })
             .attr("r", "10px")
             .attr("fill", "black")
 
@@ -104,7 +96,7 @@
         }
 
 
-        function onSelectLayerChanged(data, selectLayerEl, selectNodeEl) {
+        function onSelectLayerChanged(neuralNetwork, selectLayerEl, selectNodeEl) {
             console.log("got selected index: " + selectLayerEl.selectedIndex);
             for (var i = selectNodeEl.options.length - 1; i >= 0; --i) {
                 selectNodeEl.remove(i);
@@ -117,10 +109,10 @@
             }
 
             // Don't seem to get changed callback after repopulating the node dropdown.
-            onSelectNodeChanged(data, selectLayerEl, selectNodeEl);
+            onSelectNodeChanged(neuralNetwork, selectLayerEl, selectNodeEl);
         }
 
-        function onSelectNodeChanged(data, selectLayerEl, selectNodeEl) {
+        function onSelectNodeChanged(neuralNetwork, selectLayerEl, selectNodeEl) {
             console.log("got selected node: " + selectNodeEl.selectedIndex);
             var biasTextAreaEl = document.getElementById("biasTextArea");
             var inputWeightTextAreaEl = document.getElementById("inputWeightTextArea");
@@ -128,10 +120,9 @@
                 biasTextAreaEl.value = "--";
                 inputWeightTextAreaEl.value = "--";
             } else {
-                biasTextAreaEl.value = data.biases[selectLayerEl.selectedIndex][selectNodeEl.selectedIndex];
-                console.log(data.weights[selectLayerEl.selectedIndex]);
-                console.log(data.weights[selectLayerEl.selectedIndex][selectNodeEl.selectedIndex]);
-                inputWeightTextAreaEl.value = data.weights[selectLayerEl.selectedIndex][selectNodeEl.selectedIndex].join("\n");
+                var selectedNode = neuralNetwork.getNodeAt(selectLayerEl.selectedIndex, selectNodeEl.selectedIndex);
+                biasTextAreaEl.value = neuralNetwork.getBiasForNode(selectedNode);
+                inputWeightTextAreaEl.value = neuralNetwork.getInputWeightsForNode(selectedNode).join("\n");
             }
         }
 
