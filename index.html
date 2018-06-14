@@ -3,6 +3,8 @@
 
     <title>NN Vis</title>
 
+    <script src="https://d3js.org/d3.v5.min.js"></script> 
+
     <script>
         function start() {
             load_json();
@@ -56,6 +58,49 @@
 
             // Don't seem to get a changed callback after repopulating the layer dropdown.
             onSelectLayerChanged(data, selectLayerEl, selectNodeEl);
+
+            initialize_d3(data);
+        }
+
+        function initialize_d3(data) {
+            var d3svgEl = d3.select("#d3svg")
+            var nodes = [];
+            for (var layerIndex = 0; layerIndex < data.layers.length; ++layerIndex) {
+                for (var nodeIndex = 0; nodeIndex < data.layers[layerIndex]; ++nodeIndex) {
+                    nodes.push({
+                        layerIndex: layerIndex,
+                        nodeIndex: nodeIndex,
+                        data: data
+                    })
+                }
+            }
+
+            var globalGroup = d3svgEl.append("g");
+
+            globalGroup.selectAll("circle .nodes")
+            .data(nodes, function(node) { return node.layerIndex + "," + node.nodeIndex; })
+            .enter()
+            .append("svg:circle")
+            .attr("class", "nodes")
+            .attr("cx", function(node) { return 10 + node.layerIndex * 50; })
+            .attr("cy", function(node) { return 10 + node.nodeIndex * 25; })
+            .attr("r", "10px")
+            .attr("fill", "black")
+
+            d3svgEl.append("rect")
+            .attr("width", d3svgEl.attr("width"))
+            .attr("height", d3svgEl.attr("height"))
+            .style("fill", "none")
+            .style("pointer-events", "all")
+            .style("stroke", "black")
+            .style("stroke-width", "2")
+            .call(d3.zoom()
+                .scaleExtent([1 / 2, 4])
+                .on("zoom", function() { onZoom(globalGroup); }));
+        }
+
+        function onZoom(group) {
+            group.attr("transform", d3.event.transform);
         }
 
 
@@ -105,5 +150,7 @@
     Input Weights
     <br />
     <textarea id="inputWeightTextArea" rows="20" cols="20" readonly="true"></textarea>
+    <br />
+    <svg id="d3svg" width="600" height="300"></svg>
 </body>
 </html>
