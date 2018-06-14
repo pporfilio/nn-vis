@@ -54,12 +54,12 @@
         }
 
         function populate(data) {
+            var selectLayerEl = document.getElementById("selectLayer"); 
             for(var i = 0; i < data.layers.length; ++i) {
-                var select = document.getElementById("selectLayer"); 
-                var el = document.createElement("option");
-                el.textContent = "layer " + i + " (" + data.layers[i] + " nodes)";
-                el.value = data.layers[i];
-                select.appendChild(el);
+                var optionEl = document.createElement("option");
+                optionEl.textContent = "layer " + i + " (" + data.layers[i] + " nodes)";
+                optionEl.value = data.layers[i];
+                selectLayerEl.appendChild(optionEl);
             }
         }
     </script>
