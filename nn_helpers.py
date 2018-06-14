@@ -1,4 +1,7 @@
 def extract_data(net):
+    """Converts data stored in a neural network 
+    (https://github.com/mnielsen/neural-networks-and-deep-learning/blob/master/src/network.py)
+    to a format that can be serialized to json"""
     result = {}
     result["layers"] = net.sizes
 
@@ -16,4 +19,3 @@ def extract_data(net):
     result["weigts"] = weights
 
     return result
-
