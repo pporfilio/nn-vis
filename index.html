@@ -1,0 +1,73 @@
+<html>
+<head>
+
+    <title>NN Vis</title>
+
+    <script>
+        function start() {
+            load_json();
+            var selectLayerEl = document.getElementById("selectLayer");
+            var selectNodeEl = document.getElementById("selectNode");
+            selectLayerEl.addEventListener("change", function() {
+                console.log("got selected index: " + selectLayerEl.selectedIndex);
+                for (var i = selectNodeEl.options.length - 1; i >= 0; --i) {
+                    selectNodeEl.remove(i);
+                }
+                for (var i = 0; i < selectLayerEl.value; ++i) {
+                    var optionEl = document.createElement("option");
+                    optionEl.textContent = "Node " + i;
+                    optionEl.value = i;
+                    selectNodeEl.appendChild(optionEl);
+                }
+            });
+
+            selectNodeEl.addEventListener("change", function() {
+                console.log("got selected node: " + selectNodeEl.selectedIndex);
+            });
+        }
+
+        function load_json() {
+            // From https://stackoverflow.com/questions/14388452/how-do-i-load-a-json-object-from-a-file-with-ajax
+            function fetchJSONFile(path, callback) {
+                var httpRequest = new XMLHttpRequest();
+                httpRequest.onreadystatechange = function() {
+                    console.log("httpRequest.readyState: " + httpRequest.readyState);
+                    console.log("httpRequest.status: " + httpRequest.status);
+                    if (httpRequest.readyState === 4) {
+                        if (httpRequest.status === 200) {
+                            var data = JSON.parse(httpRequest.responseText);
+                            if (callback) callback(data);
+                        }
+                    }
+                };
+                httpRequest.open('GET', path);
+                httpRequest.send(); 
+            }
+
+            // This requests the file and executes a callback with the parsed result once
+            //   it is available
+            fetchJSONFile('https://s3.amazonaws.com/pporfilio/nn/test_json.json', 
+                function(data){
+                    populate(data)
+                }
+            );
+        }
+
+        function populate(data) {
+            for(var i = 0; i < data.layers.length; ++i) {
+                var select = document.getElementById("selectLayer"); 
+                var el = document.createElement("option");
+                el.textContent = "layer " + i + " (" + data.layers[i] + " nodes)";
+                el.value = data.layers[i];
+                select.appendChild(el);
+            }
+        }
+    </script>
+</head>
+
+<body onload="start()">
+    Select a Layer: <select id="selectLayer"></select>
+    <br />
+    Select a Node: <select id="selectNode"></select>
+</body>
+</html>
