@@ -6,24 +6,6 @@
     <script>
         function start() {
             load_json();
-            var selectLayerEl = document.getElementById("selectLayer");
-            var selectNodeEl = document.getElementById("selectNode");
-            selectLayerEl.addEventListener("change", function() {
-                console.log("got selected index: " + selectLayerEl.selectedIndex);
-                for (var i = selectNodeEl.options.length - 1; i >= 0; --i) {
-                    selectNodeEl.remove(i);
-                }
-                for (var i = 0; i < selectLayerEl.value; ++i) {
-                    var optionEl = document.createElement("option");
-                    optionEl.textContent = "Node " + i;
-                    optionEl.value = i;
-                    selectNodeEl.appendChild(optionEl);
-                }
-            });
-
-            selectNodeEl.addEventListener("change", function() {
-                console.log("got selected node: " + selectNodeEl.selectedIndex);
-            });
         }
 
         function load_json() {
@@ -55,13 +37,45 @@
 
         function populate(data) {
             var selectLayerEl = document.getElementById("selectLayer"); 
+            var selectNodeEl = document.getElementById("selectNode");
+
+            selectLayerEl.addEventListener("change", function() {
+                onSelectLayerChanged(data, this, selectNodeEl);
+            });
+
+            selectNodeEl.addEventListener("change", function() {
+                onSelectNodeChanged(data, this);
+            });
+
             for(var i = 0; i < data.layers.length; ++i) {
                 var optionEl = document.createElement("option");
                 optionEl.textContent = "layer " + i + " (" + data.layers[i] + " nodes)";
                 optionEl.value = data.layers[i];
                 selectLayerEl.appendChild(optionEl);
             }
+
+            // Doesn't seem to get a changed callback after going from 0 to more than 0 options.
+            onSelectLayerChanged(data, selectLayerEl, selectNodeEl);
         }
+
+
+        function onSelectLayerChanged(data, selectLayerEl, selectNodeEl) {
+            console.log("got selected index: " + selectLayerEl.selectedIndex);
+            for (var i = selectNodeEl.options.length - 1; i >= 0; --i) {
+                selectNodeEl.remove(i);
+            }
+            for (var i = 0; i < selectLayerEl.value; ++i) {
+                var optionEl = document.createElement("option");
+                optionEl.textContent = "Node " + i;
+                optionEl.value = i;
+                selectNodeEl.appendChild(optionEl);
+            }
+        }
+
+        function onSelectNodeChanged(data, selectNodeEl) {
+                console.log("got selected node: " + selectNodeEl.selectedIndex);
+        }
+
     </script>
 </head>
 
