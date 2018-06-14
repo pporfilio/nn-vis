@@ -16,6 +16,6 @@ def extract_data(net):
         weights[layer_index + 1] = layer_dict
         for node_index, node_weights in enumerate(layer_nodes):
             layer_dict[node_index] = [x for x in node_weights]
-    result["weigts"] = weights
+    result["weights"] = weights
 
     return result
