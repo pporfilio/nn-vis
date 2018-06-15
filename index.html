@@ -68,14 +68,6 @@
         function initialize_d3(neuralNetwork) {
             var d3svgEl = d3.select("#d3svg")
 
-            function onSelectedChanged() {
-                console.log("selected changed!");
-            }
-
-            for (var i = 0; i < neuralNetwork.getNodes().length; ++i) {
-                neuralNetwork.getNodes()[i].selectedChanged.add(onSelectedChanged);
-            }
-
             d3svgEl.append("rect")
             .attr("width", d3svgEl.attr("width"))
             .attr("height", d3svgEl.attr("height"))
@@ -99,10 +91,22 @@
             .attr("cy", function(node) { return 50 + node.getNodeIndex() * 25; })
             .attr("r", "10px")
             .attr("fill", "black")
+            .style("stroke", "black")
+            .style("stroke-width", "2")
             .style("pointer-events", "all")
             .on("click", function(datum, index) {
                 datum.setSelected(true);
             })
+            .each(function(datum, index, nodes) {
+                var domElSelection = d3.select(this);
+                datum.selectedChanged.add(function() {
+                    if (datum.getSelected()) {
+                        domElSelection.style("stroke", "yellow");
+                    } else {
+                        domElSelection.style("stroke", "black");
+                    }
+                })
+            });
         }
 
         function onZoom(group) {
