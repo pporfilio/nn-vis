@@ -5,6 +5,7 @@
 
     <script src="https://d3js.org/d3.v5.min.js"></script> 
     <script type="text/javascript" src="javascript/neuralNetwork.js"></script>
+    <script type="text/javascript" src="vendor/js-signals/dist/signals.min.js"></script>
 
     <script>
         function start() {
@@ -67,17 +68,13 @@
         function initialize_d3(neuralNetwork) {
             var d3svgEl = d3.select("#d3svg")
 
-            var globalGroup = d3svgEl.append("g");
+            function onSelectedChanged() {
+                console.log("selected changed!");
+            }
 
-            globalGroup.selectAll("circle .nodes")
-            .data(neuralNetwork.getNodes(), function(node) { return node.layerIndex + "," + node.nodeIndex; })
-            .enter()
-            .append("svg:circle")
-            .attr("class", "nodes")
-            .attr("cx", function(node) { return 50 + node.layerIndex * 50; })
-            .attr("cy", function(node) { return 50 + node.nodeIndex * 25; })
-            .attr("r", "10px")
-            .attr("fill", "black")
+            for (var i = 0; i < neuralNetwork.getNodes().length; ++i) {
+                neuralNetwork.getNodes()[i].selectedChanged.add(onSelectedChanged);
+            }
 
             d3svgEl.append("rect")
             .attr("width", d3svgEl.attr("width"))
@@ -89,6 +86,23 @@
             .call(d3.zoom()
                 .scaleExtent([1 / 2, 4])
                 .on("zoom", function() { onZoom(globalGroup); }));
+
+            // Needs to be appended after "rect" for children to get events before "rect" does.
+            var globalGroup = d3svgEl.append("g");
+
+            globalGroup.selectAll("circle .nodes")
+            .data(neuralNetwork.getNodes(), function(node) { return node.getLayerIndex() + "," + node.getNodeIndex(); })
+            .enter()
+            .append("svg:circle")
+            .attr("class", "nodes")
+            .attr("cx", function(node) { return 50 + node.getLayerIndex() * 50; })
+            .attr("cy", function(node) { return 50 + node.getNodeIndex() * 25; })
+            .attr("r", "10px")
+            .attr("fill", "black")
+            .style("pointer-events", "all")
+            .on("click", function(datum, index) {
+                datum.setSelected(true);
+            })
         }
 
         function onZoom(group) {

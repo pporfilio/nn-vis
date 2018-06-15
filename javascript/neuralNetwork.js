@@ -1,7 +1,32 @@
 function Node(layerIndex, nodeIndex, parentNetwork) {
-    this.layerIndex = layerIndex;
-    this.nodeIndex = nodeIndex;
-    this.parentNetwork = parentNetwork;
+    this._layerIndex = layerIndex;
+    this._nodeIndex = nodeIndex;
+    this._parentNetwork = parentNetwork;
+    this._selected = false;
+    this.selectedChanged = new signals.Signal();
+}
+
+Node.prototype.getLayerIndex = function() {
+    return this._layerIndex;
+}
+
+Node.prototype.getNodeIndex = function() {
+    return this._nodeIndex;
+}
+
+Node.prototype.getParentNetwork = function() {
+    return this._parentNetwork;
+}
+
+Node.prototype.getSelected = function() {
+    return this._selected;
+}
+
+Node.prototype.setSelected = function(selected) {
+    if (selected !== this._selected) {
+        this._selected = selected;
+        this.selectedChanged.dispatch();
+    }
 }
 
 function NeuralNetwork(data) {
@@ -12,18 +37,15 @@ function NeuralNetwork(data) {
     for (var layerIndex = 0; layerIndex < this.getLayerCount(); ++layerIndex) {
         for (var nodeIndex = 0; nodeIndex < this.getNodeCountInLayer(layerIndex); ++nodeIndex) {
             var newNode = new Node(layerIndex, nodeIndex, this);
-            this._nodes.push({
-                layerIndex: layerIndex,
-                nodeIndex: nodeIndex,
-                parentNetwork: this
-            })
+            this._nodes.push(newNode);
             this._nodeMap[this._hashNode(newNode)] = newNode;
         }
     }
+    this.selectedNodeChanged = new signals.Signal();
 }
 
 NeuralNetwork.prototype._hashNode = function(node) {
-    return this._hashIndices(node.layerIndex, node.nodeIndex);
+    return this._hashIndices(node.getLayerIndex(), node.getNodeIndex());
 }
 
 NeuralNetwork.prototype._hashIndices = function(layerIndex, nodeIndex) {
@@ -34,9 +56,9 @@ NeuralNetwork.prototype.getSelectedNode = function() {
     return this._selectedNode;
 }
 
-NeuralNetwork.prototype.setSelectedNode = function(newNode) {
-    if (newNode !== this._selectedNode) {
-        // TODO: emit changed signal
+NeuralNetwork.prototype.setSelectedNode = function(node) {
+    if (node !== this._selectedNode) {
+        this.selectedNodeChanged.dispatch();
     }
     this._selectedNode = newNode;
 }
@@ -57,17 +79,17 @@ NeuralNetwork.prototype.getBiasesForLayer = function(layer) {
 }
 
 NeuralNetwork.prototype.getBiasForNode = function(node) {
-    if (node.layerIndex < 1) {
+    if (node.getLayerIndex() < 1) {
         return 0;
     }
-    return this._data.biases[node.layerIndex][node.nodeIndex];
+    return this._data.biases[node.getLayerIndex()][node.getNodeIndex()];
 }
 
 NeuralNetwork.prototype.getInputWeightsForNode = function(node) {
-    if (node.layerIndex < 1) {
+    if (node.getLayerIndex() < 1) {
         return [];
     }
-    return this._data.weights[node.layerIndex][node.nodeIndex];
+    return this._data.weights[node.getLayerIndex()][node.getNodeIndex()];
 }
 
 NeuralNetwork.prototype.getNodes = function() {
