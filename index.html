@@ -41,9 +41,11 @@
         }
 
         function populate(data) {
-            var selectLayerEl = document.getElementById("selectLayer"); 
-            var selectNodeEl = document.getElementById("selectNode");
             var nn = new NeuralNetwork(data);
+            initialize_d3(nn);
+
+            var selectLayerEl = document.getElementById("selectLayerSelect"); 
+            var selectNodeEl = document.getElementById("selectNodeSelect");
 
             selectLayerEl.addEventListener("change", function() {
                 onSelectLayerChanged(nn, this, selectNodeEl);
@@ -63,13 +65,11 @@
             // Don't seem to get a changed callback after repopulating the layer dropdown.
             onSelectLayerChanged(nn, selectLayerEl, selectNodeEl);
 
-            initialize_d3(nn);
         }
 
         function initialize_d3(neuralNetwork) {
-            var d3svgEl = d3.select("#d3svg")
-
-            var nnView = new NeuralNetworkView(neuralNetwork, d3svgEl);
+            var bodySel = d3.select("body");
+            var nnView = new NeuralNetworkView(neuralNetwork, bodySel);
         }
 
 
@@ -106,18 +106,5 @@
 </head>
 
 <body onload="start()">
-    Select a Layer: <select id="selectLayer"></select>
-    <br />
-    Select a Node: <select id="selectNode"></select>
-    <br />
-    Bias
-    <br />
-    <textarea id="biasTextArea" rows="1" cols = "20" readonly="true"></textarea>
-    <br />
-    Input Weights
-    <br />
-    <textarea id="inputWeightTextArea" rows="20" cols="20" readonly="true"></textarea>
-    <br />
-    <svg id="d3svg" width="600" height="300"></svg>
 </body>
 </html>

@@ -8,13 +8,27 @@ function NeuralNetworkView(neuralNetwork, parentD3Node) {
 }
 
 NeuralNetworkView.prototype._initializeView = function() {
+    var selectLayerDivSel = this._parent.append("div").attr("id", "selectLayerDiv");
+    selectLayerDivSel.append("div").attr("id", "selectLayerLabel").html("Select a Layer:");
+    selectLayerDivSel.append("select").attr("id", "selectLayerSelect");
+    var selectNodeDivSel = this._parent.append("div").attr("id", "selectNodeDiv");
+    selectNodeDivSel.append("div").attr("id", "selectNodeLabel").html("SElect a Node:");
+    selectNodeDivSel.append("select").attr("id", "selectNodeSelect");
+    var biasDivSel = this._parent.append("div").attr("id", "biasDiv");
+    biasDivSel.append("div").attr("id", "biasLabel").html("Bias:");
+    biasDivSel.append("textarea").attr("id", "biasTextArea").attr("rows", "1").attr("cols", "20").attr("readonly", "true");
+    var inputWeightDivSel = this._parent.append("div").attr("id", "inputWeightDiv");
+    inputWeightDivSel.append("div").attr("id", "inputWeightLabel").html("Input Weights");
+    inputWeightDivSel.append("textarea").attr("id", "inputWeightTextArea").attr("rows", "20").attr("cols", "20").attr("readonly", "true");
+    var svgSel = this._parent.append("svg").attr("width", "600").attr("height", "300");
+
     // I need allNodesGroup in the zoom handler, which has it's own `this`.
     // Is there a better way than this sort of aliasing?
     var nnview = this;
 
-    this._parent.append("rect")
-    .attr("width", this._parent.attr("width"))
-    .attr("height", this._parent.attr("height"))
+    svgSel.append("rect")
+    .attr("width", svgSel.attr("width"))
+    .attr("height", svgSel.attr("height"))
     .style("fill", "none")
     .style("pointer-events", "all")
     .style("stroke", "black")
@@ -25,8 +39,10 @@ NeuralNetworkView.prototype._initializeView = function() {
 
     // Needs to be appended after "rect" for children to get events before "rect" does.
     // "g" is an SVG element used to group other SVG elements.
-    this._allNodesGroup = this._parent.append("g");
+    this._allNodesGroup = svgSel.append("g");
+}
 
+NeuralNetworkView.prototype._populateView = function() {
     this._allNodesGroup.selectAll("circle .nodes")
     .data(this._nn.getNodes(), function(node) { return node.getLayerIndex() + "," + node.getNodeIndex(); })
     .enter()
@@ -52,8 +68,4 @@ NeuralNetworkView.prototype._initializeView = function() {
             }
         })
     });
-}
-
-NeuralNetworkView.prototype._populateView = function() {
-
 }
