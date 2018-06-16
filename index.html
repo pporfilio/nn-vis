@@ -5,6 +5,7 @@
 
     <script src="https://d3js.org/d3.v5.min.js"></script> 
     <script type="text/javascript" src="javascript/neuralNetwork.js"></script>
+    <script type="text/javascript" src="javascript/neuralNetworkView.js"></script>
     <script type="text/javascript" src="vendor/js-signals/dist/signals.min.js"></script>
 
     <script>
@@ -68,49 +69,7 @@
         function initialize_d3(neuralNetwork) {
             var d3svgEl = d3.select("#d3svg")
 
-            d3svgEl.append("rect")
-            .attr("width", d3svgEl.attr("width"))
-            .attr("height", d3svgEl.attr("height"))
-            .style("fill", "none")
-            .style("pointer-events", "all")
-            .style("stroke", "black")
-            .style("stroke-width", "2")
-            .call(d3.zoom()
-                .scaleExtent([1 / 2, 4])
-                .on("zoom", function() { onZoom(globalGroup); }));
-
-            // Needs to be appended after "rect" for children to get events before "rect" does.
-            var globalGroup = d3svgEl.append("g");
-
-            globalGroup.selectAll("circle .nodes")
-            .data(neuralNetwork.getNodes(), function(node) { return node.getLayerIndex() + "," + node.getNodeIndex(); })
-            .enter()
-            .append("svg:circle")
-            .attr("class", "nodes")
-            .attr("cx", function(node) { return 50 + node.getLayerIndex() * 50; })
-            .attr("cy", function(node) { return 50 + node.getNodeIndex() * 25; })
-            .attr("r", "10px")
-            .attr("fill", "black")
-            .style("stroke", "black")
-            .style("stroke-width", "2")
-            .style("pointer-events", "all")
-            .on("click", function(datum, index) {
-                datum.setSelected(true);
-            })
-            .each(function(datum, index, nodes) {
-                var domElSelection = d3.select(this);
-                datum.selectedChanged.add(function() {
-                    if (datum.getSelected()) {
-                        domElSelection.style("stroke", "yellow");
-                    } else {
-                        domElSelection.style("stroke", "black");
-                    }
-                })
-            });
-        }
-
-        function onZoom(group) {
-            group.attr("transform", d3.event.transform);
+            var nnView = new NeuralNetworkView(neuralNetwork, d3svgEl);
         }
 
 
@@ -143,7 +102,6 @@
                 inputWeightTextAreaEl.value = neuralNetwork.getInputWeightsForNode(selectedNode).join("\n");
             }
         }
-
     </script>
 </head>
 
