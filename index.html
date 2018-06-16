@@ -43,64 +43,11 @@
         function populate(data) {
             var nn = new NeuralNetwork(data);
             initialize_d3(nn);
-
-            var selectLayerEl = document.getElementById("selectLayerSelect"); 
-            var selectNodeEl = document.getElementById("selectNodeSelect");
-
-            selectLayerEl.addEventListener("change", function() {
-                onSelectLayerChanged(nn, this, selectNodeEl);
-            });
-
-            selectNodeEl.addEventListener("change", function() {
-                onSelectNodeChanged(nn, selectLayerEl, this);
-            });
-
-            for(var i = 0; i < nn.getLayerCount(); ++i) {
-                var optionEl = document.createElement("option");
-                optionEl.textContent = "layer " + i + " (" + nn.getNodeCountInLayer(i) + " nodes)";
-                optionEl.value = nn.getNodeCountInLayer(i);
-                selectLayerEl.appendChild(optionEl);
-            }
-
-            // Don't seem to get a changed callback after repopulating the layer dropdown.
-            onSelectLayerChanged(nn, selectLayerEl, selectNodeEl);
-
         }
 
         function initialize_d3(neuralNetwork) {
             var bodySel = d3.select("body");
             var nnView = new NeuralNetworkView(neuralNetwork, bodySel);
-        }
-
-
-        function onSelectLayerChanged(neuralNetwork, selectLayerEl, selectNodeEl) {
-            console.log("got selected index: " + selectLayerEl.selectedIndex);
-            for (var i = selectNodeEl.options.length - 1; i >= 0; --i) {
-                selectNodeEl.remove(i);
-            }
-            for (var i = 0; i < selectLayerEl.value; ++i) {
-                var optionEl = document.createElement("option");
-                optionEl.textContent = "Node " + i;
-                optionEl.value = i;
-                selectNodeEl.appendChild(optionEl);
-            }
-
-            // Don't seem to get changed callback after repopulating the node dropdown.
-            onSelectNodeChanged(neuralNetwork, selectLayerEl, selectNodeEl);
-        }
-
-        function onSelectNodeChanged(neuralNetwork, selectLayerEl, selectNodeEl) {
-            console.log("got selected node: " + selectNodeEl.selectedIndex);
-            var biasTextAreaEl = document.getElementById("biasTextArea");
-            var inputWeightTextAreaEl = document.getElementById("inputWeightTextArea");
-            if (selectLayerEl.selectedIndex <= 0) {
-                biasTextAreaEl.value = "--";
-                inputWeightTextAreaEl.value = "--";
-            } else {
-                var selectedNode = neuralNetwork.getNodeAt(selectLayerEl.selectedIndex, selectNodeEl.selectedIndex);
-                biasTextAreaEl.value = neuralNetwork.getBiasForNode(selectedNode);
-                inputWeightTextAreaEl.value = neuralNetwork.getInputWeightsForNode(selectedNode).join("\n");
-            }
         }
     </script>
 </head>

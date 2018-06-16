@@ -71,6 +71,10 @@ NeuralNetwork.prototype.getNodeCountInLayer = function(layer) {
     return this._data.layers[layer];
 }
 
+NeuralNetwork.prototype.getLayerNodeCounts = function() {
+    return this._data.layers;
+}
+
 NeuralNetwork.prototype.getBiasesForLayer = function(layer) {
     if (layer < 1) {
         return [];

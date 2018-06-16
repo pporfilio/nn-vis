@@ -1,30 +1,38 @@
 function NeuralNetworkView(neuralNetwork, parentD3Node) {
     this._parent = parentD3Node;
     this._nn = neuralNetwork;
+
     this._allNodesGroup = undefined;
+    this._selectLayerSelectSel = undefined;
+    this._selectNodeSelectSel = undefined;
+    this._biasTextAreaSel = undefined;
+    this._inputWeightTextAreaSel = undefined;
 
     this._initializeView();
     this._populateView();
 }
 
 NeuralNetworkView.prototype._initializeView = function() {
+    // I need members of `this` in functions that have a different value for `this`.
+    // Is there a better option than aliasing in this way?
+    var nnview = this;
+
     var selectLayerDivSel = this._parent.append("div").attr("id", "selectLayerDiv");
     selectLayerDivSel.append("div").attr("id", "selectLayerLabel").html("Select a Layer:");
-    selectLayerDivSel.append("select").attr("id", "selectLayerSelect");
+    this._selectLayerSelectSel = selectLayerDivSel.append("select").attr("id", "selectLayerSelect")
+        .on("change", function () { nnview._onSelectLayerChanged(nnview); });
     var selectNodeDivSel = this._parent.append("div").attr("id", "selectNodeDiv");
-    selectNodeDivSel.append("div").attr("id", "selectNodeLabel").html("SElect a Node:");
-    selectNodeDivSel.append("select").attr("id", "selectNodeSelect");
+    selectNodeDivSel.append("div").attr("id", "selectNodeLabel").html("Select a Node:");
+    this._selectNodeSelectSel = selectNodeDivSel.append("select").attr("id", "selectNodeSelect")
+        .on("change", function () { nnview._onSelectNodeChanged(nnview); });
     var biasDivSel = this._parent.append("div").attr("id", "biasDiv");
     biasDivSel.append("div").attr("id", "biasLabel").html("Bias:");
-    biasDivSel.append("textarea").attr("id", "biasTextArea").attr("rows", "1").attr("cols", "20").attr("readonly", "true");
+    this._biasTextAreaSel = biasDivSel.append("textarea").attr("id", "biasTextArea").attr("rows", "1").attr("cols", "20").attr("readonly", "true");
     var inputWeightDivSel = this._parent.append("div").attr("id", "inputWeightDiv");
     inputWeightDivSel.append("div").attr("id", "inputWeightLabel").html("Input Weights");
-    inputWeightDivSel.append("textarea").attr("id", "inputWeightTextArea").attr("rows", "20").attr("cols", "20").attr("readonly", "true");
+    this._inputWeightTextAreaSel = inputWeightDivSel.append("textarea").attr("id", "inputWeightTextArea").attr("rows", "20").attr("cols", "20").attr("readonly", "true");
     var svgSel = this._parent.append("svg").attr("width", "600").attr("height", "300");
 
-    // I need allNodesGroup in the zoom handler, which has it's own `this`.
-    // Is there a better way than this sort of aliasing?
-    var nnview = this;
 
     svgSel.append("rect")
     .attr("width", svgSel.attr("width"))
@@ -68,4 +76,42 @@ NeuralNetworkView.prototype._populateView = function() {
             }
         })
     });
+
+    this._selectLayerSelectSel.selectAll("option")
+    .data(this._nn.getLayerNodeCounts())
+    .enter()
+    .append("option")
+    .html(function(datum, index) { return "layer " + index + " (" + datum + " nodes)"; })
+    .attr("value", function(datum) { return datum; });
+
+    // Don't seem to get a changed callback after repopulating the layer dropdown.
+    this._onSelectLayerChanged(this);
+}
+
+NeuralNetworkView.prototype._onSelectLayerChanged = function(nnView) {
+    // It appears that when a handler is called by d3, `this` is set to the DOM element that 
+    // generated the event, which means we don't have access to other NeuralNetworkView members
+    // without passing in the NeuralNetworkView manually.
+    var optionSel = nnView._selectNodeSelectSel.selectAll("option")
+    .data(d3.range(nnView._selectLayerSelectSel.property("value")))
+    .enter()
+    .append("option")
+    .html(function(datum) { return "Node " + datum; })
+    .attr("value", function(datum) { return datum; });
+
+    optionSel.exit().remove();
+
+    nnView._onSelectNodeChanged(nnView);
+}
+
+NeuralNetworkView.prototype._onSelectNodeChanged = function(nnView) {
+    if (nnView._selectLayerSelectSel.property("selectedIndex") <= 0) {
+        nnView._biasTextAreaSel.property("value", "--");
+        nnView._inputWeightTextAreaSel.property("value", "--");
+    } else {
+        var selectedNode = nnView._nn.getNodeAt(nnView._selectLayerSelectSel.property("selectedIndex"),
+                                            nnView._selectNodeSelectSel.property("selectedIndex"));
+        nnView._biasTextAreaSel.property("value", nnView._nn.getBiasForNode(selectedNode));
+        nnView._inputWeightTextAreaSel.property("value", nnView._nn.getInputWeightsForNode(selectedNode).join("\n"));
+    }
 }
