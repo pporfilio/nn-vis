@@ -24,8 +24,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs_express.html
-// Says to comment out this line.
-//app.use(express.static(path.join(__dirname, 'public')));
+// Says to comment out this line, the stylesheet doesn't load if I do.
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
