@@ -1,1 +1,8 @@
 *.pyc
+web/node_modules/
+web/.elasticbeanstalk/
+
+# Elastic Beanstalk Files
+web/.elasticbeanstalk/*
+!web/.elasticbeanstalk/*.cfg.yml
+!web/.elasticbeanstalk/*.global.yml
