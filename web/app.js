@@ -6,8 +6,13 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var hike = require('./routes/hike');
 
 var app = express();
+
+// From the AWS tutorial.
+app.get('/hikes', hike.index);
+app.post('/add_hike', hike.add_hike);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
