@@ -1,3 +1,0 @@
-[submodule "vendor/js-signals"]
-	path = vendor/js-signals
-	url = git@github.com:millermedeiros/js-signals.git
