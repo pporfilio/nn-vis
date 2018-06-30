@@ -1,31 +1,29 @@
-function Node(layerIndex, nodeIndex, parentNetwork) {
-    this._layerIndex = layerIndex;
-    this._nodeIndex = nodeIndex;
-    this._parentNetwork = parentNetwork;
-    this._selected = false;
-//    this.selectedChanged = new signals.Signal();
-}
+class Node {
+    constructor(layerIndex, nodeIndex, parentNetwork) {
+        this._layerIndex = layerIndex;
+        this._nodeIndex = nodeIndex;
+        this._parentNetwork = parentNetwork;
+        this._selected = false;        
+    }
 
-Node.prototype.getLayerIndex = function() {
-    return this._layerIndex;
-}
+    get layerIndex() {
+        return this._layerIndex;
+    }
 
-Node.prototype.getNodeIndex = function() {
-    return this._nodeIndex;
-}
+    get nodeIndex() {
+        return this._nodeIndex;
+    }
 
-Node.prototype.getParentNetwork = function() {
-    return this._parentNetwork;
-}
+    get parentNetwork() {
+        return this._parentNetwork;
+    }
 
-Node.prototype.getSelected = function() {
-    return this._selected;
-}
+    get selected() {
+        return this._selected;
+    }
 
-Node.prototype.setSelected = function(selected) {
-    if (selected !== this._selected) {
-        this._selected = selected;
-//        this.selectedChanged.dispatch();
+    set selected(isSelected) {
+        return this._selected = isSelected;
     }
 }
 
@@ -45,7 +43,7 @@ function NeuralNetwork(data) {
 }
 
 NeuralNetwork.prototype._hashNode = function(node) {
-    return this._hashIndices(node.getLayerIndex(), node.getNodeIndex());
+    return this._hashIndices(node.layerIndex, node.nodeIndex);
 }
 
 NeuralNetwork.prototype._hashIndices = function(layerIndex, nodeIndex) {
@@ -83,17 +81,17 @@ NeuralNetwork.prototype.getBiasesForLayer = function(layer) {
 }
 
 NeuralNetwork.prototype.getBiasForNode = function(node) {
-    if (node.getLayerIndex() < 1) {
+    if (node.layerIndex < 1) {
         return 0;
     }
-    return this._data.biases[node.getLayerIndex()][node.getNodeIndex()];
+    return this._data.biases[node.layerIndex][node.nodeIndex];
 }
 
 NeuralNetwork.prototype.getInputWeightsForNode = function(node) {
-    if (node.getLayerIndex() < 1) {
+    if (node.layerIndex < 1) {
         return [];
     }
-    return this._data.weights[node.getLayerIndex()][node.getNodeIndex()];
+    return this._data.weights[node.layerIndex][node.nodeIndex];
 }
 
 NeuralNetwork.prototype.getNodes = function() {

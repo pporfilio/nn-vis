@@ -49,15 +49,15 @@ NeuralNetworkView.prototype._initializeView = function() {
 
 NeuralNetworkView.prototype._populateView = function() {
     this._allNodesGroup.selectAll("circle .nn_node")
-    .data(this._nn.getNodes(), function(node) { return node.getLayerIndex() + "," + node.getNodeIndex(); })
+    .data(this._nn.getNodes(), function(node) { return node.layerIndex + "," + node.nodeIndex; })
     .enter()
     .append("svg:circle")
     .attr("class", "nn_node")
-    .attr("cx", function(node) { return 50 + node.getLayerIndex() * 50; })
-    .attr("cy", function(node) { return 50 + node.getNodeIndex() * 25; })
+    .attr("cx", function(node) { return 50 + node.layerIndex * 50; })
+    .attr("cy", function(node) { return 50 + node.nodeIndex * 25; })
     .attr("r", "10px")
     .on("click", function(datum, index) {
-        datum.setSelected(true);
+        datum.selected = true;
     })
     .each(function(datum, index, nodes) {
         var domElSelection = d3.select(this);
