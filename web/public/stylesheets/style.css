@@ -3,6 +3,14 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-a {
-  color: #00B7FF;
+.nn_background {
+    fill: none;
+    pointer-events: all;
+    stroke: black;
+    stroke-width: 2;
+}
+
+.nn_node {
+    fill: black;
+    pointer-events: all;
 }

@@ -37,10 +37,7 @@ NeuralNetworkView.prototype._initializeView = function() {
     svgSel.append("rect")
     .attr("width", svgSel.attr("width"))
     .attr("height", svgSel.attr("height"))
-    .style("fill", "none")
-    .style("pointer-events", "all")
-    .style("stroke", "black")
-    .style("stroke-width", "2")
+    .attr("class", "nn_background")
     .call(d3.zoom()
         .scaleExtent([1 / 2, 4])
         .on("zoom", function() { nnview._allNodesGroup.attr("transform", d3.event.transform); }));
@@ -51,18 +48,14 @@ NeuralNetworkView.prototype._initializeView = function() {
 }
 
 NeuralNetworkView.prototype._populateView = function() {
-    this._allNodesGroup.selectAll("circle .nodes")
+    this._allNodesGroup.selectAll("circle .nn_node")
     .data(this._nn.getNodes(), function(node) { return node.getLayerIndex() + "," + node.getNodeIndex(); })
     .enter()
     .append("svg:circle")
-    .attr("class", "nodes")
+    .attr("class", "nn_node")
     .attr("cx", function(node) { return 50 + node.getLayerIndex() * 50; })
     .attr("cy", function(node) { return 50 + node.getNodeIndex() * 25; })
     .attr("r", "10px")
-    .attr("fill", "black")
-    .style("stroke", "black")
-    .style("stroke-width", "2")
-    .style("pointer-events", "all")
     .on("click", function(datum, index) {
         datum.setSelected(true);
     })
