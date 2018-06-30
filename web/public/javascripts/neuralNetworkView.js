@@ -49,7 +49,7 @@ NeuralNetworkView.prototype._initializeView = function() {
 
 NeuralNetworkView.prototype._populateView = function() {
     this._allNodesGroup.selectAll("circle .nn_node")
-    .data(this._nn.getNodes(), function(node) { return node.layerIndex + "," + node.nodeIndex; })
+    .data(this._nn.nodes, function(node) { return node.layerIndex + "," + node.nodeIndex; })
     .enter()
     .append("svg:circle")
     .attr("class", "nn_node")
@@ -71,7 +71,7 @@ NeuralNetworkView.prototype._populateView = function() {
     });
 
     this._selectLayerSelectSel.selectAll("option")
-    .data(this._nn.getLayerNodeCounts())
+    .data(this._nn.layerNodeCounts)
     .enter()
     .append("option")
     .html(function(datum, index) { return "layer " + index + " (" + datum + " nodes)"; })
