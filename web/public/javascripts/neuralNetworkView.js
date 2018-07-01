@@ -1,3 +1,23 @@
+
+class NodeView {
+    constructor(nnNode) {
+        this._nnNode = nnNode;
+        this._domEl = undefined;
+    }
+
+    get nnNode() {
+        return this._nnNode;
+    }
+
+    get domEl() {
+        return this._domEl;
+    }
+
+    set domEl(newDomEl) {
+        this._domEl = newDomEl;
+    }
+}
+
 class NeuralNetworkView {
     constructor(neuralNetwork, parentD3Node) {
         this._parent = parentD3Node;
@@ -8,6 +28,7 @@ class NeuralNetworkView {
         this._selectNodeSelectSel = undefined;
         this._biasTextAreaSel = undefined;
         this._inputWeightTextAreaSel = undefined;
+        this._nodeViews = undefined
 
         this._initializeView();
         this._populateView();
@@ -50,19 +71,25 @@ class NeuralNetworkView {
     }
 
     _populateView() {
+        this._nodeViews = new Set();
+        for (var i = 0; i < this._nn.nodes.length; i++) {
+            this._nodeViews.add(new NodeView(this._nn.nodes[i]));
+        }
+        console.log("nodeViews length: " + this._nodeViews.values().length);
         this._allNodesGroup.selectAll("circle .nn_node")
-        .data(this._nn.nodes, function(node) { return node.layerIndex + "," + node.nodeIndex; })
+        .data([...this._nodeViews.values()], function(nodeView) { return nodeView.nnNode.layerIndex + "," + nodeView.nnNode.nodeIndex; })
         .enter()
         .append("svg:circle")
         .attr("class", "nn_node")
-        .attr("cx", function(node) { return 50 + node.layerIndex * 50; })
-        .attr("cy", function(node) { return 50 + node.nodeIndex * 25; })
+        .attr("cx", function(nodeView) { return 50 + nodeView.nnNode.layerIndex * 50; })
+        .attr("cy", function(nodeView) { return 50 + nodeView.nnNode.nodeIndex * 25; })
         .attr("r", "10px")
         .on("click", function(datum, index) {
-            datum.selected = true;
+//            datum.selected = true;
         })
         .each(function(datum, index, nodes) {
-            var domElSelection = d3.select(this);
+            //datum.domEl = this;
+  //          var domElSelection = d3.select(this);
             // datum.selectedChanged.add(function() {
             //     if (datum.getSelected()) {
             //         domElSelection.style("stroke", "yellow");
