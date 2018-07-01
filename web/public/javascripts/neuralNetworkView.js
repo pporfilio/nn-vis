@@ -98,7 +98,12 @@ class NeuralNetworkView {
         .attr("cy", function(nodeView) { return 50 + nodeView.nnNode.nodeIndex * 25; })
         .attr("r", "10px")
         .on("click", function(datum, index) {
-            nnView._selectionSet.toggle(datum);
+            if (nnView._selectionSet.contains(datum)) {
+                nnView._selectionSet.remove(datum);
+            } else {
+                nnView._selectionSet.clear();
+                nnView._selectionSet.add(datum);
+            }
         })
         .each(function(datum, index, nodes) {
             datum.domEl = this;
