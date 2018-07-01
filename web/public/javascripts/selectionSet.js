@@ -61,4 +61,11 @@ class SelectionSet {
             this.selectionSetChanged.emit();
         }
     }
+
+    clear() {
+        var previousSet = this._set;
+        this._set = new Set();
+        this.elementsRemoved.emit(previousSet);
+        this.selectionSetChanged.emit();
+    }
 }
