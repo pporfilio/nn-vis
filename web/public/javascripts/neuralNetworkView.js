@@ -1,4 +1,3 @@
-
 class NodeView {
     constructor(nnNode) {
         this._nnNode = nnNode;
@@ -32,6 +31,18 @@ class NeuralNetworkView {
 
         this._initializeView();
         this._populateView();
+
+        this._selectionSet = new SelectionSet();
+        this._selectionSet.elementsAdded.connect(function(sender, addedElements) {
+            addedElements.forEach(function(element) {
+                d3.select(element.domEl).classed("selected", true);
+            });
+        });
+        this._selectionSet.elementsRemoved.connect(function(sender, removedElements) {
+            removedElements.forEach(function(element) {
+                d3.select(element.domEl).classed("selected", false);
+            })
+        })
     }
 
 
@@ -71,6 +82,8 @@ class NeuralNetworkView {
     }
 
     _populateView() {
+        var nnView = this;
+
         this._nodeViews = new Set();
         for (var i = 0; i < this._nn.nodes.length; i++) {
             this._nodeViews.add(new NodeView(this._nn.nodes[i]));
@@ -85,18 +98,10 @@ class NeuralNetworkView {
         .attr("cy", function(nodeView) { return 50 + nodeView.nnNode.nodeIndex * 25; })
         .attr("r", "10px")
         .on("click", function(datum, index) {
-//            datum.selected = true;
+            nnView._selectionSet.toggle(datum);
         })
         .each(function(datum, index, nodes) {
-            //datum.domEl = this;
-  //          var domElSelection = d3.select(this);
-            // datum.selectedChanged.add(function() {
-            //     if (datum.getSelected()) {
-            //         domElSelection.style("stroke", "yellow");
-            //     } else {
-            //         domElSelection.style("stroke", "black");
-            //     }
-            // })
+            datum.domEl = this;
         });
 
         this._selectLayerSelectSel.selectAll("option")
