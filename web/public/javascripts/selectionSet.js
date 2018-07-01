@@ -18,6 +18,10 @@ class SelectionSet {
         return this._elementsRemovedSignal;
     }
 
+    get selectedObjects() {
+        return this._set;
+    }
+
     _internalAdd(object) {
         if (!this.contains(object)) {
             this._set.add(object);

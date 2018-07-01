@@ -43,6 +43,20 @@ class NeuralNetworkView {
                 d3.select(element.domEl).classed("selected", false);
             })
         })
+
+        var nnView = this;
+        this._selectionSet.selectionSetChanged.connect(function(sender) {
+            var set = sender.selectedObjects;
+            if (set.size !== 1) {
+                // TODO: clear data
+            } else {
+                var node = [...set][0].nnNode;
+                nnView._selectLayerSelectSel.property("selectedIndex", node.layerIndex);
+                nnView._onSelectLayerChanged(nnView);
+                nnView._selectNodeSelectSel.property("selectedIndex", node.nodeIndex);
+                nnView._onSelectNodeChanged(nnView);
+            }
+        })
     }
 
 
@@ -55,13 +69,16 @@ class NeuralNetworkView {
         selectLayerDivSel.append("div").attr("id", "selectLayerLabel").html("Select a Layer:");
         this._selectLayerSelectSel = selectLayerDivSel.append("select").attr("id", "selectLayerSelect")
             .on("change", function () { nnview._onSelectLayerChanged(nnview); });
+
         var selectNodeDivSel = this._parent.append("div").attr("id", "selectNodeDiv");
         selectNodeDivSel.append("div").attr("id", "selectNodeLabel").html("Select a Node:");
         this._selectNodeSelectSel = selectNodeDivSel.append("select").attr("id", "selectNodeSelect")
             .on("change", function () { nnview._onSelectNodeChanged(nnview); });
+
         var biasDivSel = this._parent.append("div").attr("id", "biasDiv");
         biasDivSel.append("div").attr("id", "biasLabel").html("Bias:");
         this._biasTextAreaSel = biasDivSel.append("textarea").attr("id", "biasTextArea").attr("rows", "1").attr("cols", "20").attr("readonly", "true");
+
         var inputWeightDivSel = this._parent.append("div").attr("id", "inputWeightDiv");
         inputWeightDivSel.append("div").attr("id", "inputWeightLabel").html("Input Weights");
         this._inputWeightTextAreaSel = inputWeightDivSel.append("textarea").attr("id", "inputWeightTextArea").attr("rows", "20").attr("cols", "20").attr("readonly", "true");
