@@ -87,7 +87,6 @@ class NeuralNetworkView {
         this._inputWeightTextAreaSel = inputWeightDivSel.append("textarea").attr("id", "inputWeightTextArea").attr("rows", "20").attr("cols", "20").attr("readonly", "true");
         var svgSel = this._parent.append("svg").attr("width", "600").attr("height", "300");
 
-
         svgSel.append("rect")
         .attr("width", svgSel.attr("width"))
         .attr("height", svgSel.attr("height"))
@@ -136,7 +135,8 @@ class NeuralNetworkView {
         .html(function(datum, index) { return "layer " + index + " (" + datum + " nodes)"; })
         .attr("value", function(datum) { return datum; });
 
-        // Don't seem to get a changed callback after repopulating the layer dropdown.
+        // Don't seem to get a changed callback after repopulating the layer dropdown or changing the selection programmatically. 
+        this._selectLayerSelectSel.property("selectedIndex", -1);
         this._onSelectLayerChanged(this);
     }
 
