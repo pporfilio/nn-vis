@@ -1,3 +1,5 @@
+// TODO: select node when the user changes the dropdown
+
 class NodeView {
     constructor(nnNode) {
         this._nnNode = nnNode;
@@ -48,7 +50,8 @@ class NeuralNetworkView {
         this._selectionSet.selectionSetChanged.connect(function(sender) {
             var set = sender.selectedObjects;
             if (set.size !== 1) {
-                // TODO: clear data
+                nnView._selectLayerSelectSel.property("selectedIndex", -1);
+                nnView._onSelectLayerChanged(nnView);
             } else {
                 var node = [...set][0].nnNode;
                 nnView._selectLayerSelectSel.property("selectedIndex", node.layerIndex);
@@ -141,8 +144,14 @@ class NeuralNetworkView {
         // It appears that when a handler is called by d3, `this` is set to the DOM element that 
         // generated the event, which means we don't have access to other NeuralNetworkView members
         // without passing in the NeuralNetworkView manually.
+
+        var currentData = []
+        if (nnView._selectLayerSelectSel.property("selectedIndex") >= 0) {
+            currentData = d3.range(nnView._selectLayerSelectSel.property("value"));
+        }
+
         var optionSel = nnView._selectNodeSelectSel.selectAll("option")
-        .data(d3.range(nnView._selectLayerSelectSel.property("value")))
+        .data(currentData)
         .enter()
         .append("option")
         .html(function(datum) { return "Node " + datum; })
@@ -150,11 +159,12 @@ class NeuralNetworkView {
 
         optionSel.exit().remove();
 
+        nnView._selectNodeSelectSel.property("selectedIndex", -1);
         nnView._onSelectNodeChanged(nnView);
     }
 
     _onSelectNodeChanged(nnView) {
-        if (nnView._selectLayerSelectSel.property("selectedIndex") <= 0) {
+        if (nnView._selectLayerSelectSel.property("selectedIndex") <= 0 || nnView._selectNodeSelectSel.property("selectedIndex") < 0) {
             nnView._biasTextAreaSel.property("value", "--");
             nnView._inputWeightTextAreaSel.property("value", "--");
         } else {
