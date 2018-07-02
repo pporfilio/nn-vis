@@ -38,16 +38,16 @@ class NeuralNetwork {
             for (var nodeIndex = 0; nodeIndex < this.getNodeCountInLayer(layerIndex); ++nodeIndex) {
                 var newNode = new Node(layerIndex, nodeIndex, this);
                 this._nodes.push(newNode);
-                this._nodeMap[this._hashNode(newNode)] = newNode;
+                this._nodeMap[this.hashNode(newNode)] = newNode;
             }
         }
     }
 
-    _hashNode(node) {
-       return this._hashIndices(node.layerIndex, node.nodeIndex);
+    hashNode(node) {
+       return this.hashIndices(node.layerIndex, node.nodeIndex);
     }
 
-    _hashIndices(layerIndex, nodeIndex) {
+    hashIndices(layerIndex, nodeIndex) {
         return layerIndex + "," + nodeIndex;
     }
 
@@ -97,6 +97,6 @@ class NeuralNetwork {
     }
 
     getNodeAt(layerIndex, nodeIndex) {
-        return this._nodeMap[this._hashIndices(layerIndex, nodeIndex)];
+        return this._nodeMap[this.hashIndices(layerIndex, nodeIndex)];
     }
 }

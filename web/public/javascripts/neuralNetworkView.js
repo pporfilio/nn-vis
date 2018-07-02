@@ -30,6 +30,7 @@ class NeuralNetworkView {
         this._biasTextAreaSel = undefined;
         this._inputWeightTextAreaSel = undefined;
         this._nodeViews = undefined
+        this._nodeViewMap = undefined
 
         this._initializeView();
         this._populateView();
@@ -104,8 +105,12 @@ class NeuralNetworkView {
         var nnView = this;
 
         this._nodeViews = new Set();
+        this._nodeViewMap = {};
         for (var i = 0; i < this._nn.nodes.length; i++) {
-            this._nodeViews.add(new NodeView(this._nn.nodes[i]));
+            var node = this._nn.nodes[i];
+            var newNodeView = new NodeView(node);
+            this._nodeViews.add(newNodeView);
+            this._nodeViewMap[this._nn.hashNode(node)] = newNodeView;
         }
         console.log("nodeViews length: " + this._nodeViews.values().length);
         this._allNodesGroup.selectAll("circle .nn_node")
@@ -164,12 +169,23 @@ class NeuralNetworkView {
     }
 
     _onSelectNodeChanged(nnView) {
-        if (nnView._selectLayerSelectSel.property("selectedIndex") <= 0 || nnView._selectNodeSelectSel.property("selectedIndex") < 0) {
+        var layerIndex = nnView._selectLayerSelectSel.property("selectedIndex");
+        var nodeIndex = nnView._selectNodeSelectSel.property("selectedIndex");
+
+        if (nodeIndex >= 0) {
+            var selectedNode = nnView._nn.getNodeAt(layerIndex, nodeIndex);
+            var selectedNodeView = nnView._nodeViewMap[nnView._nn.hashNode(selectedNode)];
+            if (!nnView._selectionSet.contains(selectedNodeView)) {
+                nnView._selectionSet.clear();
+                nnView._selectionSet.add(selectedNodeView);
+            }
+        }
+
+        if (layerIndex <= 0 || nodeIndex < 0) {
             nnView._biasTextAreaSel.property("value", "--");
             nnView._inputWeightTextAreaSel.property("value", "--");
         } else {
-            var selectedNode = nnView._nn.getNodeAt(nnView._selectLayerSelectSel.property("selectedIndex"),
-                                                nnView._selectNodeSelectSel.property("selectedIndex"));
+            var selectedNode = nnView._nn.getNodeAt(layerIndex, nodeIndex);
             nnView._biasTextAreaSel.property("value", nnView._nn.getBiasForNode(selectedNode));
             nnView._inputWeightTextAreaSel.property("value", nnView._nn.getInputWeightsForNode(selectedNode).join("\n"));
         }
