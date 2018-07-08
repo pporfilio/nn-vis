@@ -1,5 +1,3 @@
-// TODO: select node when the user changes the dropdown
-
 class NodeView {
     constructor(nnNode) {
         this._nnNode = nnNode;
@@ -155,9 +153,10 @@ class NeuralNetworkView {
             currentData = d3.range(nnView._selectLayerSelectSel.property("value"));
         }
 
-        var optionSel = nnView._selectNodeSelectSel.selectAll("option")
-        .data(currentData)
-        .enter()
+        // You need to store the selection after .data() to be able to call multiple of enter/exit/update.
+        // You could also store after the enter() call, but apparently not at the very end.
+        var optionSel = nnView._selectNodeSelectSel.selectAll("option").data(currentData);
+        optionSel.enter()
         .append("option")
         .html(function(datum) { return "Node " + datum; })
         .attr("value", function(datum) { return datum; });
